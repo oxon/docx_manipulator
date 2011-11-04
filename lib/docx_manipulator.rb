@@ -4,7 +4,7 @@ require 'zip/zip'
 
 class DocxManipulator
 
-  attr_reader :source, :target
+  attr_reader :source, :target, :new_content
 
   def initialize(source, target)
     @source = source
@@ -19,8 +19,19 @@ class DocxManipulator
     content
   end
 
-  def content=(new_content)
-    @content = new_content
+  def content(new_content, options = {})
+    case new_content
+    when File
+      if options.include?(:xslt)
+        xslt = Nokogiri::XSLT.parse(options[:xslt])
+        data = Nokogiri::XML.parse(new_content)
+        @new_content = xslt.transform(data).to_s
+      else
+        @new_content = new_content.read
+      end
+    else
+      @new_content = new_content
+    end
   end
 
   def process
@@ -28,11 +39,12 @@ class DocxManipulator
       Zip::ZipFile.foreach(source) do |entry|
         os.put_next_entry entry.name
         if entry.name == 'word/document.xml'
-          os.write @content
+          os.write @new_content
         else
           os.write entry.get_input_stream.read
         end
       end
     end
   end
+
 end
