@@ -1,0 +1,3 @@
+= Docx Creator
+
+The purpose of this gem is to make the creation of Microsoft Word documents possible.
