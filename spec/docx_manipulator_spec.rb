@@ -1,9 +1,9 @@
-require 'docx_creator/docx_manipulator'
+require 'docx_manipulator'
 require 'zip/zip'
 
-describe DocxCreator::DocxManipulator do
+describe DocxManipulator do
 
-  subject { DocxCreator::DocxManipulator.new('spec/files/movies.docx', 'spec/files/result.docx') }
+  subject { DocxManipulator.new('spec/files/movies.docx', 'spec/files/result.docx') }
 
   describe ".source_content" do
     it "returns the content of document.xml" do
