@@ -8,8 +8,8 @@ Gem::Specification.new do |s|
   s.authors     = ["Michael Stämpfli"]
   s.email       = ["michael.staempfli@garaio.com"]
   s.homepage    = ""
-  s.summary     = %q{TODO: Write a gem summary}
-  s.description = %q{TODO: Write a gem description}
+  s.summary     = %q{Enables the modification of docx files.}
+  s.description = %q{This Gem enables you to modify the contents of docx files.}
 
   s.rubyforge_project = "docx_manipulator"
 
