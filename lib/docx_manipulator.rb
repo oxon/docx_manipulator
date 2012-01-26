@@ -20,17 +20,16 @@ class DocxManipulator
   end
 
   def content(new_content, options = {})
-    case new_content
-    when File
-      if options.include?(:xslt)
-        xslt = Nokogiri::XSLT.parse(options[:xslt])
-        data = Nokogiri::XML.parse(new_content)
-        @new_content = xslt.transform(data).to_s
-      else
-        @new_content = new_content.read
-      end
+    new_content_string = case new_content
+                         when File then new_content.read
+                         else new_content
+                         end
+    if options.include?(:xslt)
+      xslt = Nokogiri::XSLT.parse(options[:xslt])
+      data = Nokogiri::XML.parse(new_content_string)
+      @new_content = xslt.transform(data).to_s
     else
-      @new_content = new_content
+      @new_content = new_content_string
     end
   end
 

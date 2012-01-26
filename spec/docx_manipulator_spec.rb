@@ -12,10 +12,33 @@ describe DocxManipulator do
   end
 
   describe "#content" do
+    let(:xml_string) { <<-EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<Movies>
+  <Genre name="Drama">
+    <Movie>
+      <Name>The Departed</Name>
+      <Released>2006</Released>
+    </Movie>
+    <Movie>
+      <Name>The Pursuit of Happyness</Name>
+      <Released>2006</Released>
+    </Movie>
+  </Genre>
+</Movies>
+EOF
+    }
+
     it "transforms the data file with an xslt file" do
       subject.content File.new('spec/files/data.xml'), :xslt => File.new('spec/files/document.xslt')
-      subject.new_content.should =~ /The Departed/
-      subject.new_content.should =~ /The Pursuit of Happyness/
+      subject.new_content.should =~ /<w:t>The Departed<\/w:t>/
+      subject.new_content.should =~ /<w:t>The Pursuit of Happyness<\/w:t>/
+    end
+
+    it "transforms a string with an xslt file" do
+      subject.content xml_string, :xslt => File.new('spec/files/document.xslt')
+      subject.new_content.should =~ /<w:t>The Departed<\/w:t>/
+      subject.new_content.should =~ /<w:t>The Pursuit of Happyness<\/w:t>/
     end
 
     it "accepts a string" do

@@ -11,7 +11,7 @@
       <xsl:for-each select="Movie">
         <w:p w:rsidR="008E3083" w:rsidRDefault="008E3083" w:rsidP="008E3083">
           <w:pPr><w:pStyle w:val="ListParagraph"/><w:numPr><w:ilvl w:val="0"/><w:numId w:val="1"/></w:numPr></w:pPr>
-          <w:r><w:t><xsl:value-of select="Name" /> (</w:t></w:r><w:proofErr w:type="spellStart"/><w:r><w:t><xsl:value-of select="Released"/></w:t></w:r><w:proofErr w:type="spellEnd"/><w:r><w:t>)</w:t></w:r>
+          <w:r><w:t><xsl:value-of select="Name" /></w:t></w:r><w:proofErr w:type="spellStart"/><w:r><w:t><xsl:value-of select="Released"/></w:t></w:r><w:proofErr w:type="spellEnd"/><w:r><w:t>)</w:t></w:r>
           <w:bookmarkStart w:id="0" w:name="_GoBack"/><w:bookmarkEnd w:id="0"/>
         </w:p>
       </xsl:for-each>
