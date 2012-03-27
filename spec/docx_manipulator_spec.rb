@@ -52,6 +52,13 @@ EOF
     end
   end
 
+  describe '#add_image' do
+    it 'adds an image to the relations file' do
+      subject.add_image 'rId9', 'path/to/image.jpg'
+      subject.new_relationships.to_s.should =~ /<Relationship Id="rId9" Type="http:\/\/schemas.openxmlformats.org\/officeDocument\/2006\/relationships\/image" Target="media\/image.jpg"\/>/
+    end
+  end
+
   describe "#process" do
     after :each do
       File.delete 'spec/files/result.docx'
@@ -67,6 +74,25 @@ EOF
       subject.process
       Zip::ZipFile.open('spec/files/result.docx') do |file|
         file.get_input_stream('word/document.xml').read.should == 'bla'
+      end
+    end
+
+    context 'with an image' do
+      it 'replaces the relations file' do
+        subject.add_image 'rId19', 'spec/files/duck.jpeg'
+        subject.process
+        Zip::ZipFile.open('spec/files/result.docx') do |file|
+          content = Nokogiri::XML.parse(file.get_input_stream('word/_rels/document.xml.rels').read)
+          content.xpath('//r:Relationship[@Id="rId19"]', 'r' => 'http://schemas.openxmlformats.org/package/2006/relationships').first['Target'].should == 'media/duck.jpeg'
+        end
+      end
+
+      it 'adds the image to the resulting file' do
+        subject.add_image 'rId19', 'spec/files/duck.jpeg'
+        subject.process
+        Zip::ZipFile.open('spec/files/result.docx') do |file|
+          file.find_entry('word/media/duck.jpeg').should_not be_nil
+        end
       end
     end
   end

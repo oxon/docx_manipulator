@@ -4,11 +4,13 @@ require 'zip/zip'
 
 class DocxManipulator
 
-  attr_reader :source, :target, :new_content
+  attr_reader :source, :target, :new_content, :new_relationships
 
   def initialize(source, target)
     @source = source
     @target = target
+    @new_relationships = source_relationships
+    @images = {}
   end
 
   def source_content
@@ -17,6 +19,14 @@ class DocxManipulator
       content = file.read('word/document.xml')
     end
     content
+  end
+
+  def source_relationships
+    content = ''
+    Zip::ZipFile.open(source) do |file|
+      content = file.read('word/_rels/document.xml.rels')
+    end
+    Nokogiri::XML.parse(content)
   end
 
   def content(new_content, options = {})
@@ -33,14 +43,32 @@ class DocxManipulator
     end
   end
 
+  def add_image(id, path)
+    @images[id] = path
+    image_node = Nokogiri::XML::Node.new('Relationship', new_relationships)
+    image_node['Id'] = id
+    image_node['Type'] = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/image'
+    image_node['Target'] = "media/#{File.basename(path)}"
+    new_relationships.root << image_node
+  end
+
   def process
     Zip::ZipOutputStream.open(target) do |os|
       Zip::ZipFile.foreach(source) do |entry|
         os.put_next_entry entry.name
         if entry.name == 'word/document.xml'
           os.write @new_content
-        else
+        elsif entry.name == 'word/_rels/document.xml.rels'
+          os.write new_relationships.to_s
+        elsif entry.file?
           os.write entry.get_input_stream.read
+        end
+      end
+
+      @images.each do |id, path|
+        os.put_next_entry "word/media/#{File.basename(path)}"
+        File.open(path) do |file|
+          IO.copy_stream file, os
         end
       end
     end
