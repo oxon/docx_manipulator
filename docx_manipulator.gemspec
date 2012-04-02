@@ -5,8 +5,8 @@ require "docx_manipulator/version"
 Gem::Specification.new do |s|
   s.name        = "docx_manipulator"
   s.version     = DocxManipulator::VERSION
-  s.authors     = ["Michael Stämpfli"]
-  s.email       = ["michael.staempfli@garaio.com"]
+  s.authors     = ["Michael Stämpfli"]
+  s.email       = ["michael.staempfli@gmail.com"]
   s.homepage    = ""
   s.summary     = %q{Enables the modification of docx files.}
   s.description = %q{This Gem enables you to modify the contents of docx files.}
