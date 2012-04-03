@@ -59,6 +59,20 @@ EOF
     end
   end
 
+  describe '#add_binary_image' do
+    let(:image) { File.new(File.join(File.dirname(__FILE__), 'files', 'duck.jpeg'), 'rb') }
+    it 'adds an image in binary format to the docx' do
+      data = image.read
+      subject.add_binary_image 'rId18', 'duck.jpeg', data
+      subject.new_relationships.to_s.should =~ /<Relationship Id="rId18" Type="http:\/\/schemas.openxmlformats.org\/officeDocument\/2006\/relationships\/image" Target="media\/duck.jpeg"\/>/
+      subject.process
+
+      Zip::ZipFile.open('spec/files/result.docx') do |file|
+        file.read('word/media/duck.jpeg').should == data
+      end
+    end
+  end
+
   describe "#process" do
     after :each do
       File.delete 'spec/files/result.docx'

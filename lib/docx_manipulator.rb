@@ -11,6 +11,7 @@ class DocxManipulator
     @target = target
     @new_relationships = source_relationships
     @images = {}
+    @binary_images = {}
   end
 
   def source_content
@@ -52,6 +53,15 @@ class DocxManipulator
     new_relationships.root << image_node
   end
 
+  def add_binary_image(id, name, data)
+    @binary_images[name] = data
+    image_node = Nokogiri::XML::Node.new('Relationship', new_relationships)
+    image_node['Id'] = id
+    image_node['Type'] = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/image'
+    image_node['Target'] = "media/#{name}"
+    new_relationships.root << image_node
+  end
+
   def process
     Zip::ZipOutputStream.open(target) do |os|
       Zip::ZipFile.foreach(source) do |entry|
@@ -70,6 +80,11 @@ class DocxManipulator
         File.open(path) do |file|
           IO.copy_stream file, os
         end
+      end
+
+      @binary_images.each do |name, data|
+        os.put_next_entry "word/media/#{name}"
+        os.write data
       end
     end
   end
