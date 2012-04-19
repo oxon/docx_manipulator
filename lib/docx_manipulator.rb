@@ -1,6 +1,7 @@
 require 'docx_manipulator/version'
 require 'nokogiri'
 require 'zip/zip'
+require 'i18n'
 
 class DocxManipulator
 
@@ -49,7 +50,7 @@ class DocxManipulator
     image_node = Nokogiri::XML::Node.new('Relationship', new_relationships)
     image_node['Id'] = id
     image_node['Type'] = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/image'
-    image_node['Target'] = "media/#{File.basename(path)}"
+    image_node['Target'] = "media/#{I18n.transliterate(File.basename(path))}"
     new_relationships.root << image_node
   end
 
@@ -76,14 +77,14 @@ class DocxManipulator
       end
 
       @images.each do |id, path|
-        os.put_next_entry "word/media/#{File.basename(path)}"
+        os.put_next_entry "word/media/#{I18n.transliterate(File.basename(path))}"
         File.open(path) do |file|
           IO.copy_stream file, os
         end
       end
 
       @binary_images.each do |name, data|
-        os.put_next_entry "word/media/#{name}"
+        os.put_next_entry "word/media/#{I18n.transliterate(name)}"
         os.write data
       end
     end

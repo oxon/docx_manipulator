@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 require 'docx_manipulator'
 require 'zip/zip'
 
@@ -56,6 +57,11 @@ EOF
     it 'adds an image to the relations file' do
       subject.add_image 'rId9', 'path/to/image.jpg'
       subject.new_relationships.to_s.should =~ /<Relationship Id="rId9" Type="http:\/\/schemas.openxmlformats.org\/officeDocument\/2006\/relationships\/image" Target="media\/image.jpg"\/>/
+    end
+
+    it 'transliterates the image name' do
+      subject.add_image 'rId28', 'path/to/äöü.jpg'
+      subject.new_relationships.to_s.should =~ /<Relationship Id="rId28" Type="http:\/\/schemas.openxmlformats.org\/officeDocument\/2006\/relationships\/image" Target="media\/aou.jpg"\/>/
     end
   end
 
