@@ -1,7 +1,7 @@
+require 'nokogiri'
+
 class DocxManipulator
   class Content
-    attr_reader :new_content
-
     def set(new_content, options = {})
       @new_content = if new_content.kind_of?(File)
                        new_content.read
@@ -13,6 +13,15 @@ class DocxManipulator
         data = Nokogiri::XML.parse(@new_content)
         @new_content = xslt.transform(data).to_s
       end
+    end
+
+    def writes_to_files
+      ['word/document.xml']
+    end
+
+    def process(output)
+      output.put_next_entry 'word/document.xml'
+      output.write @new_content
     end
   end
 end
