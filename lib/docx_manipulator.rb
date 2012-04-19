@@ -33,7 +33,7 @@ class DocxManipulator
 
     Zip::ZipOutputStream.open(target) do |os|
       Zip::ZipFile.foreach(source) do |entry|
-        unless files_to_be_written.include?(entry.name)
+        if !files_to_be_written.include?(entry.name) && entry.file?
           os.put_next_entry entry.name
           os.write entry.get_input_stream.read
         end
