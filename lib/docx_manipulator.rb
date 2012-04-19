@@ -3,16 +3,20 @@ require 'nokogiri'
 require 'zip/zip'
 require 'i18n'
 
+require 'docx_manipulator/content'
+require 'docx_manipulator/images'
+
 class DocxManipulator
 
-  attr_reader :source, :target, :new_content, :new_relationships
+  attr_reader :source, :target
 
   def initialize(source, target)
     @source = source
     @target = target
-    @new_relationships = source_relationships
-    @images = {}
     @binary_images = {}
+
+    @content = Content.new
+    @images = Images.new(source_relationships)
   end
 
   def source_content
@@ -32,35 +36,15 @@ class DocxManipulator
   end
 
   def content(new_content, options = {})
-    new_content_string = case new_content
-                         when File then new_content.read
-                         else new_content
-                         end
-    if options.include?(:xslt)
-      xslt = Nokogiri::XSLT.parse(options[:xslt])
-      data = Nokogiri::XML.parse(new_content_string)
-      @new_content = xslt.transform(data).to_s
-    else
-      @new_content = new_content_string
-    end
+    @content.set(new_content, options)
   end
 
   def add_image(id, path)
-    @images[id] = path
-    image_node = Nokogiri::XML::Node.new('Relationship', new_relationships)
-    image_node['Id'] = id
-    image_node['Type'] = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/image'
-    image_node['Target'] = "media/#{I18n.transliterate(File.basename(path))}"
-    new_relationships.root << image_node
+    @images.add(id, path)
   end
 
   def add_binary_image(id, name, data)
-    @binary_images[name] = data
-    image_node = Nokogiri::XML::Node.new('Relationship', new_relationships)
-    image_node['Id'] = id
-    image_node['Type'] = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/image'
-    image_node['Target'] = "media/#{name}"
-    new_relationships.root << image_node
+    @images.add_binary(id, I18n.transliterate(name), data)
   end
 
   def process
@@ -68,22 +52,22 @@ class DocxManipulator
       Zip::ZipFile.foreach(source) do |entry|
         os.put_next_entry entry.name
         if entry.name == 'word/document.xml'
-          os.write @new_content
+          os.write @content.new_content
         elsif entry.name == 'word/_rels/document.xml.rels'
-          os.write new_relationships.to_s
+          os.write @images.relationships.to_s
         elsif entry.file?
           os.write entry.get_input_stream.read
         end
       end
 
-      @images.each do |id, path|
+      @images.images.each do |id, path|
         os.put_next_entry "word/media/#{I18n.transliterate(File.basename(path))}"
         File.open(path) do |file|
           IO.copy_stream file, os
         end
       end
 
-      @binary_images.each do |name, data|
+      @images.binary_images.each do |name, data|
         os.put_next_entry "word/media/#{I18n.transliterate(name)}"
         os.write data
       end
