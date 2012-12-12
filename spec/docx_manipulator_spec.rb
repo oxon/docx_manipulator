@@ -80,6 +80,18 @@ EOF
     end
   end
 
+  context 'add a custom file' do
+    let(:data) { '<translations><page>Seite</page></translations>' }
+    it 'transforms the data file with an xslt template' do
+      subject.add_file 'word/footer.xml', data, :xslt => File.new('spec/files/footer.xslt')
+      subject.process
+      Zip::ZipFile.open('spec/files/result.docx') do |file|
+        data = file.get_input_stream('word/footer.xml').read
+        data.should =~ /<w:t xml:space="preserve">Seite<\/w:t>/
+      end
+    end
+  end
+
   context 'with an image' do
     it 'adds an image' do
       subject.add_image 'rId19', 'spec/files/duck.jpeg'
