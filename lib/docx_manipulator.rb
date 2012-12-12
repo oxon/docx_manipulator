@@ -12,12 +12,16 @@ class DocxManipulator
     @source = source
     @target = target
 
-    @content = Content.new
+    @changed_files = []
     @relationships = Relationships.new(source)
   end
 
   def content(new_content, options = {})
-    @content.set(new_content, options)
+    @changed_files << Content.new('word/document.xml', new_content, options)
+  end
+
+  def add_file(path, data, options = {})
+    @changed_files << Content.new(path, data, options)
   end
 
   def add_image(id, path)
@@ -29,7 +33,7 @@ class DocxManipulator
   end
 
   def process
-    files_to_be_written = @content.writes_to_files + @relationships.writes_to_files
+    files_to_be_written = @changed_files.map(&:writes_to_file).flatten + @relationships.writes_to_files
 
     Zip::ZipOutputStream.open(target) do |os|
       Zip::ZipFile.foreach(source) do |entry|
@@ -39,7 +43,7 @@ class DocxManipulator
         end
       end
 
-      @content.process(os)
+      @changed_files.each {|f| f.process(os)}
       @relationships.process(os)
     end
   end
