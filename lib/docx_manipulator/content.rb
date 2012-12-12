@@ -2,7 +2,10 @@ require 'nokogiri'
 
 class DocxManipulator
   class Content
-    def set(new_content, options = {})
+    attr_reader :writes_to_file
+
+    def initialize(path, new_content, options = {})
+      @writes_to_file = path
       @new_content = if new_content.kind_of?(File)
                        new_content.read
                      else
@@ -15,12 +18,8 @@ class DocxManipulator
       end
     end
 
-    def writes_to_files
-      ['word/document.xml']
-    end
-
     def process(output)
-      output.put_next_entry 'word/document.xml'
+      output.put_next_entry @writes_to_file
       output.write @new_content
     end
   end
