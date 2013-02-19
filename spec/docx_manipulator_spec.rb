@@ -128,4 +128,18 @@ EOF
     end
   end
 
+  context 'relationsships' do
+    it 'adds a reletionshop' do
+      subject.add_relationship('rId28', 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink', 'http://www.fricktalischer-reiterclub.ch', 'TargetMode' => 'External')
+      subject.process
+
+      Zip::ZipFile.open('spec/files/result.docx') do |file|
+        content = Nokogiri::XML.parse(file.get_input_stream('word/_rels/document.xml.rels').read)
+        node = content.xpath('//r:Relationship[@Id="rId28"]', 'r' => 'http://schemas.openxmlformats.org/package/2006/relationships').first
+        node['Target'].should == 'http://www.fricktalischer-reiterclub.ch'
+        node['TargetMode'].should == 'External'
+      end
+    end
+  end
+
 end

@@ -20,23 +20,25 @@ class DocxManipulator
 
     def add_image(id, path)
       @images << path
-      add_node(id, I18n.transliterate(File.basename(path)))
+      add_node(id, 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/image', "media/#{I18n.transliterate(File.basename(path))}")
     end
 
     def add_binary_image(id, name, data)
       name = I18n.transliterate(name)
       @binary_images[name] = data
-      add_node(id, name)
+      add_node(id, 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/image', "media/#{name}")
     end
 
-    def add_node(id, name)
+    def add_node(id, type, target, attributes = {})
       image_node = Nokogiri::XML::Node.new('Relationship', @relationships)
       image_node['Id'] = id
-      image_node['Type'] = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/image'
-      image_node['Target'] = "media/#{name}"
+      image_node['Type'] = type
+      image_node['Target'] = target
+      attributes.each do |key, value|
+        image_node[key] = value
+      end
       @relationships.root << image_node
     end
-    private :add_node
 
     def writes_to_files
       ['word/_rels/document.xml.rels']

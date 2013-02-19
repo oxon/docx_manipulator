@@ -28,6 +28,10 @@ class DocxManipulator
     @relationships.add_image(id, path)
   end
 
+  def add_relationship(id, type, target, attributes = {})
+    @relationships.add_node(id, type, target, attributes)
+  end
+
   def add_binary_image(id, name, data)
     @relationships.add_binary_image(id, name, data)
   end
