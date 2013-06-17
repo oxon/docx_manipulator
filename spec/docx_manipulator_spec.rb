@@ -128,8 +128,8 @@ EOF
     end
   end
 
-  context 'relationsships' do
-    it 'adds a reletionshop' do
+  context 'relationships' do
+    it 'adds a relationship' do
       subject.add_relationship('rId28', 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink', 'http://www.fricktalischer-reiterclub.ch', 'TargetMode' => 'External')
       subject.process
 
