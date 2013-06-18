@@ -1,0 +1,63 @@
+require 'pry'
+module DocxManipulator
+  class Templater
+    XSLT_START = <<-EOS
+  <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+  <xsl:template match="/">
+    EOS
+    XSLT_END= <<-EOS
+  </xsl:template>
+  </xsl:stylesheet>
+    EOS
+
+
+    attr_reader :docx_path, :xml
+
+    def initialize(docx, xml)
+      if docx.respond_to? :path
+        @docx_path = docx
+      else
+        @docx_path = Pathname.new(docx)
+      end
+
+      @xml = Nokogiri::XML::parse(xml)
+    end
+
+    def generate_xslt
+      bare_xslt[0]
+    end
+
+    def generate_xslt!
+      bare = bare_xslt
+      unless bare[1]
+        # TODO: Which placeholder was missed?
+        raise "A placeholder was missed!"
+      end
+      bare[0]
+    end
+
+    def placeholders
+      leaves
+    end
+
+    private
+
+    def leaves(node = xml.root)
+      node.xpath('.//*[not(*)]').map(&:path)
+    end
+
+    def bare_xslt
+      document = DocxManipulator::Document.new(docx_path)
+      xslt = document.data
+      all_placeholder_used = true
+      placeholders.each do |placeholder|
+        hit = xslt.gsub!(/#{Regexp.escape(placeholder)}/, "<xsl:value-of select=\"#{placeholder}\" />")
+        all_placeholder_used = all_placeholder_used && hit
+      end
+      xslt = XSLT_START << xslt << XSLT_END
+      return xslt, all_placeholder_used
+    end
+
+
+  end
+end
