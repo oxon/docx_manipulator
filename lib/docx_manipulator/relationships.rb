@@ -1,7 +1,7 @@
 require 'i18n'
 require 'nokogiri'
 
-class DocxManipulator
+class DocxManipulator::Manipulator
   class Relationships
     def initialize(source)
       @relationships = read_relationships(source)

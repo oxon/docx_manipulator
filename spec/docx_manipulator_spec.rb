@@ -4,7 +4,7 @@ require 'zip/zip'
 
 describe DocxManipulator do
 
-  subject { DocxManipulator.new('spec/files/movies.docx', 'spec/files/result.docx') }
+  subject { DocxManipulator::Manipulator.new('spec/files/movies.docx', 'spec/files/result.docx') }
 
   after :each do
     File.delete('spec/files/result.docx') if File.exist?('spec/files/result.docx')

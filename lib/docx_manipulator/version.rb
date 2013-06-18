@@ -1,3 +1,3 @@
-class DocxManipulator
+module DocxManipulator
   VERSION = "0.0.8"
 end
