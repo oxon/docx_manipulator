@@ -11,7 +11,7 @@ describe DocxManipulator do
 
 
   before :each do
-    manipulator = DocxManipulator.new(input_path, output_path)
+    manipulator = DocxManipulator::Manipulator.new(input_path, output_path)
     manipulator.content xml, :xslt => File.new('spec/files/document.xslt')
     manipulator.process
   end
