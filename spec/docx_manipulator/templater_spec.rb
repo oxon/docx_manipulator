@@ -77,6 +77,9 @@ describe DocxManipulator::Templater do
       let (:output_path) { File.join('spec', 'files', 'output', 'output.docx') }
 
       before :each do
+        File.open(created_xslt_path, 'w') do |f|
+          f.write subject.generate_xslt
+        end
         FileUtils.mkdir_p File.dirname output_path
       end
 
@@ -84,15 +87,23 @@ describe DocxManipulator::Templater do
         FileUtils.rm_rf "#{File.dirname output_path}/.", :secure => true
       end
 
-      it "it should transform the given docx" do
-        File.open(created_xslt_path, 'w') do |f|
-          f.write subject.generate_xslt
+
+      context "should generate a xslt that is ready for transformation" do
+        it "for text-only documents" do
+          manipulator = DocxManipulator::Manipulator.new input_docx_path, output_path
+          manipulator.content xml, :xslt => File.new(created_xslt_path)
+          manipulator.process
         end
-        manipulator = DocxManipulator::Manipulator.new input_docx_path, output_path
-        manipulator.content xml, :xslt => File.new(created_xslt_path)
-        manipulator.process
+
+        it "for documents with images" do
+          input_docx_with_image_path = File.join('spec', 'files', 'contains_an_image.docx')
+          manipulator = DocxManipulator::Manipulator.new input_docx_path, output_path
+          manipulator.content xml, :xslt => File.new(created_xslt_path)
+          manipulator.process
+        end
       end
     end
   end
 
 end
+
