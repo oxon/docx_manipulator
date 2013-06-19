@@ -23,17 +23,17 @@ module DocxManipulator
       @xml = Nokogiri::XML::parse(xml)
     end
 
-    def generate_xslt
-      bare_xslt[0]
+    def generate_xslt(destination=nil)
+      try_to_write(bare_xslt[0], destination)
     end
 
-    def generate_xslt!
+    def generate_xslt!(destination=nil)
       bare = bare_xslt
       unless bare[1]
         # TODO: Which placeholder was missed?
         raise "A placeholder was missed!"
       end
-      bare[0]
+      try_to_write(bare[0], destination)
     end
 
     def placeholders
@@ -41,6 +41,15 @@ module DocxManipulator
     end
 
     private
+
+    def try_to_write(result, destination)
+      if destination.respond_to? :write
+        destination.write result
+      elsif destination.respond_to?(:file?)
+        File.new(destination, 'w').write(result)
+      end
+      result
+    end
 
     def leaves(node = xml.root)
       node.xpath('.//*[not(*)]').map(&:path)

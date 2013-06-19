@@ -13,7 +13,7 @@ describe DocxManipulator::Templater do
     end
   end
 
-  it "should accept a file or a file path" do
+  it "#new accepts files or file paths" do
     templater1 = described_class.new input_docx_path, xml
     file = File.new(input_docx_path)
     templater2 = described_class.new file, xml
@@ -77,9 +77,6 @@ describe DocxManipulator::Templater do
       let (:output_path) { File.join('spec', 'files', 'output', 'output.docx') }
 
       before :each do
-        File.open(created_xslt_path, 'w') do |f|
-          f.write subject.generate_xslt
-        end
         FileUtils.mkdir_p File.dirname output_path
       end
 
@@ -87,6 +84,28 @@ describe DocxManipulator::Templater do
         FileUtils.rm_rf "#{File.dirname output_path}/.", :secure => true
       end
 
+
+      [:generate_xslt, :generate_xslt!].each do |method|
+        it "##{method} can write to File" do
+          File.open(created_xslt_path, 'w') do |f|
+            subject.send(method, f)
+          end
+          File.read(created_xslt_path).should include('value-of select')
+        end
+
+        it "##{method} can write to Pathname" do
+          subject.send(method, Pathname.new(created_xslt_path))
+          File.read(created_xslt_path).should include('value-of select')
+        end
+      end
+
+      context "in combination with DocxManipulator::Manipulator" do
+
+        before :each do
+          File.open(created_xslt_path, 'w') do |f|
+            f.write subject.generate_xslt
+          end
+        end
 
       context "should generate a xslt that is ready for transformation" do
         it "for text-only documents" do
@@ -102,8 +121,10 @@ describe DocxManipulator::Templater do
           manipulator.process
         end
       end
+
     end
   end
 
 end
 
+end
