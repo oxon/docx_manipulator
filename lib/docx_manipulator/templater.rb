@@ -1,4 +1,4 @@
-require 'pry'
+require 'nokogiri'
 module DocxManipulator
   class Templater
     XSLT_START = <<-EOS

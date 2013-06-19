@@ -13,13 +13,17 @@ describe DocxManipulator::Templater do
     end
   end
 
-  it "#new accepts files or file paths" do
-    templater1 = described_class.new input_docx_path, xml
-    file = File.new(input_docx_path)
-    templater2 = described_class.new file, xml
-    templater1.generate_xslt.should == templater2.generate_xslt
-    templater1.generate_xslt.should_not be_nil
-    file.close
+  [File, Pathname].each do |klass|
+    it "#new accepts #{klass.to_s}" do
+      templater1 = described_class.new input_docx_path, xml
+      input = klass.new(input_docx_path)
+      templater2 = described_class.new input, xml
+      templater1.generate_xslt.should == templater2.generate_xslt
+      templater1.generate_xslt.should_not be_nil
+      if input.respond_to? :close
+        input.close
+      end
+    end
   end
 
   context "with a given docx file" do
