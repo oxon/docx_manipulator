@@ -55,8 +55,12 @@ describe DocxManipulator::Templater do
         end
       end
 
-      it "should check if all xml leaves were used" do
+      it "#generate_xslt! should raise an error" do
         expect { subject.generate_xslt! }.to raise_exception
+      end
+
+      it "#generate_xslt! should list the errors" do
+        expect { subject.generate_xslt! }.to raise_exception(RuntimeError, /something/)
       end
     end
 

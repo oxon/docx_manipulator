@@ -29,12 +29,13 @@ module DocxManipulator
     end
 
     def generate_xslt!(destination=nil)
-      bare = bare_xslt
-      unless bare[1]
-        # TODO: Which placeholder was missed?
-        raise "A placeholder was missed!"
+      bare, errors = bare_xslt
+      unless errors.empty?
+        message = "Not all placeholders were satisfied!"
+        message = errors.inject(message) {| message, e| message << "\n" << e}
+        raise message
       end
-      try_to_write(bare[0], destination)
+      try_to_write(bare, destination)
     end
 
     def placeholders
@@ -59,13 +60,15 @@ module DocxManipulator
     def bare_xslt
       document = DocxManipulator::Document.new(docx_path)
       xslt = document.data
-      all_placeholder_used = true
+      missed = []
       placeholders.each do |placeholder|
         hit = xslt.gsub!(/#{Regexp.escape(placeholder)}/, "<xsl:value-of select=\"#{placeholder}\" />")
-        all_placeholder_used = all_placeholder_used && hit
+        unless hit
+          missed << placeholder
+        end
       end
       xslt = XSLT_START << xslt << XSLT_END
-      return xslt, all_placeholder_used
+      return xslt, missed
     end
 
 
