@@ -11,7 +11,7 @@ class DocxManipulator::Manipulator
 
     def read_relationships(path)
       content = ''
-      Zip::ZipFile.open(path) do |file|
+      Zip::File.open(path) do |file|
         content = file.read('word/_rels/document.xml.rels')
       end
       Nokogiri::XML.parse(content)

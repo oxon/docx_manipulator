@@ -7,7 +7,7 @@ module DocxManipulator
     end
 
     def data
-      Zip::ZipFile.open(file) do |zip|
+      Zip::File.open(file) do |zip|
           zip.read('word/document.xml')
       end
     end

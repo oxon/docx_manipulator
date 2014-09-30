@@ -29,7 +29,9 @@ describe DocxManipulator::Templater do
   context "with a given docx file" do
     subject { described_class.new input_docx_path, xml }
 
-    its(:placeholders) { should =~ ['/note/from', '/note/to', '/note/heading', '/note/body'] }
+    it 'has placeholders' do
+      subject.placeholders.should =~ ['/note/from', '/note/to', '/note/heading', '/note/body']
+    end
 
     it "#generate_xslt and #generate_xslt! should return the same value if all placeholder were satisfied" do
       subject.generate_xslt == subject.generate_xslt!
@@ -77,7 +79,9 @@ describe DocxManipulator::Templater do
         end
       end
 
-      its(:placeholders) { should =~ ['/note/from'] }
+      it 'has placeholders' do
+        subject.placeholders.should =~ ['/note/from']
+      end
     end
 
     context "in action" do

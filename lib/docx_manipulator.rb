@@ -3,7 +3,7 @@ require 'docx_manipulator/content'
 require 'docx_manipulator/relationships'
 require 'docx_manipulator/document'
 
-require 'zip/zip'
+require 'zip'
 
 module DocxManipulator
   class Manipulator
@@ -41,8 +41,8 @@ module DocxManipulator
     def process
       files_to_be_written = @changed_files.map(&:writes_to_file).flatten + @relationships.writes_to_files
 
-      Zip::ZipOutputStream.open(target) do |os|
-        Zip::ZipFile.foreach(source) do |entry|
+      Zip::OutputStream.open(target) do |os|
+        Zip::File.foreach(source) do |entry|
           if !files_to_be_written.include?(entry.name) && entry.file?
             os.put_next_entry entry.name
             os.write entry.get_input_stream.read
