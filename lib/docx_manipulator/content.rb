@@ -1,6 +1,6 @@
 require 'nokogiri'
 
-class DocxManipulator
+class DocxManipulator::Manipulator
   class Content
     attr_reader :writes_to_file
 

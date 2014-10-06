@@ -1,7 +1,7 @@
 require 'i18n'
 require 'nokogiri'
 
-class DocxManipulator
+class DocxManipulator::Manipulator
   class Relationships
     def initialize(source)
       @relationships = read_relationships(source)
@@ -11,7 +11,7 @@ class DocxManipulator
 
     def read_relationships(path)
       content = ''
-      Zip::ZipFile.open(path) do |file|
+      Zip::File.open(path) do |file|
         content = file.read('word/_rels/document.xml.rels')
       end
       Nokogiri::XML.parse(content)

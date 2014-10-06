@@ -19,8 +19,12 @@ Gem::Specification.new do |s|
   s.require_paths = ["lib"]
 
   # specify any dependencies here; for example:
-  s.add_development_dependency "rspec"
-  s.add_dependency "rubyzip"
+  s.add_dependency "rubyzip", '~> 1.0'
   s.add_dependency "nokogiri"
   s.add_dependency 'i18n'
+
+  s.add_development_dependency "rspec"
+  s.add_development_dependency "rake"
+  s.add_development_dependency "builder"
+  s.add_development_dependency "pry"
 end
